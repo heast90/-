@@ -592,11 +592,11 @@ my_model.model_predict(img_path)
 forward\
 infer results = 17 -> No entry\
 array(17, dtype=int32)
-###终端部署方法
+### 4.终端部署方法
 ```python
 !hub serving start -m my_model
 ```
-### 4.通过POST请求实现预测
+### 5.通过POST请求实现预测
 ```python
 import requests
 import json

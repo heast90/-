@@ -474,4 +474,4 @@ plt.show()
 
 ## 个人简介
 
-此处可附上你的AI Studio个人链接，增加曝光率。
+[AI Studio 个人主页](https://aistudio.baidu.com/aistudio/personalcenter/thirdview/888234)

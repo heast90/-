@@ -368,8 +368,6 @@ plt.legend()
 plt.grid()
 plt.show()
 ```
-训练模型保存完成！\
-画出训练测试误差图
 ![image](https://user-images.githubusercontent.com/69491295/128952970-6629f52f-3792-443a-a3af-d2adc8fba13f.png)
 ![image](https://user-images.githubusercontent.com/69491295/128952994-0387fa20-3391-42d1-b574-810fbf11307b.png)
 

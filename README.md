@@ -370,8 +370,9 @@ plt.show()
 ```
 训练模型保存完成！
 画出训练测试误差图
-![image.png](attachment:image.png)
-![image-2.png](attachment:image-2.png)
+![image](https://user-images.githubusercontent.com/69491295/128952970-6629f52f-3792-443a-a3af-d2adc8fba13f.png)
+![image](https://user-images.githubusercontent.com/69491295/128952994-0387fa20-3391-42d1-b574-810fbf11307b.png)
+
 ## 五、模型预测
 ### 1.加载测试数据
 ```python
@@ -464,7 +465,7 @@ for i in range(n):
     plt.imshow(load_test_data1(i))
 plt.show()
 ```
-![image-3.png](attachment:image-3.png)
+![image](https://user-images.githubusercontent.com/69491295/128953009-4aeeca31-2bfa-4231-bdb2-a79936b0c346.png)
 如上图训练的模型很好的实现了对交通标志的分类。
 
 ## 五、总结与升华

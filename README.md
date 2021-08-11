@@ -477,7 +477,7 @@ mkdir my_model
 cd ./my_model 
 touch __init__.py
 ```
-### module.py
+### 2.module.py
 ```
 import paddle.fluid as fluid
 import paddle 

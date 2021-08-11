@@ -465,7 +465,158 @@ plt.show()
 ```
 ![image](https://user-images.githubusercontent.com/69491295/128953009-4aeeca31-2bfa-4231-bdb2-a79936b0c346.png)
 如上图训练的模型很好的实现了对交通标志的分类。
+## 模型部署
+### 训练模型转Hub模型
+文件image_classification_vgg.inference.model.zip和image_classification_resnet.inference.model.zip是训练好的模型可以直接布置
+```python
+%%bash
+unzip -n image_classification_vgg.inference.model.zip
+unzip -n image_classification_resnet.inference.model.zip
+cd ./work
+mkdir my_model
+cd ./my_model 
+touch __init__.py
+```
+### module.py
+```
+import paddle.fluid as fluid
+import paddle 
+import numpy as np 
+import cv2 
+import csv 
+from paddlehub.module.module import runnable, moduleinfo, serving
+import base64
+from io import BytesIO
+import json
+import argparse
+def load_image(file):
+    image = cv2.imread(file)
+    image = np.array(image).astype(np.float32).reshape(1, 3, 32, 32)#Batch大小，图片通道数，图片的宽和图片的高
+    image = (image - np.mean(image))/(np.max(image) - np.min(image))
+    return image
+def load_label():
+    file_path = './data/data103558/signnames.csv'
+    signnames = []
+    with open(file_path) as f:
+        lines = csv.reader(f,delimiter=',')
+        next(lines)
+        for line in lines:
+            signnames.append(line[1])
+    return signnames
+class Model:
+    def __init__(self,use_cuda,params_dirname,describle):
+        super(Model, self).__init__()
+        self.use_cuda = use_cuda
+        paddle.enable_static() 
+        self.params_dirname=params_dirname
+        self.describle = describle
+         
+    def predict(self,img):
+        place = fluid.CUDAPlace(0) if self.use_cuda else fluid.CPUPlace()
+        exe = fluid.Executor(place)
+        [inference_program, feed_target_names,fetch_targets] = fluid.io.load_inference_model(self.params_dirname, exe)
+        res = []
+        with fluid.program_guard(inference_program):
+            r = exe.run(inference_program,feed={feed_target_names[0]:img},fetch_list=fetch_targets)
+            res.append(np.argmax(r[0]))
+        self.result = res[0]
+        return np.array(res[0]).astype('int32')
+    def output(self):
+        print("infer results = %d -> %s\n" % (self.result,self.describle[self.result]))
+    def signame(self):
+        return self.describle[int(self.result)]
+@moduleinfo(
+    name="my_model",
+    version="1.0.0",
+    summary="This is a PaddleHub Module. Just for test.",
+    author="7hinc",
+    author_email="",
+    type="cv/my_model",
+)
+class ModelPredict:
+    def __init__(self):
+        self.parser = argparse.ArgumentParser(
+            description="Run the mnist_predict module.",
+            prog='hub run mnist_predict',
+            usage='%(prog)s',
+            add_help=True)
+        self.parser.add_argument(
+            '--input_img', type=str, default=None, help="img to predict")
+        self.signnames = load_label()
+        self.params_resnet = './image_classification_resnet.inference.model'
+        self.params_vgg = './image_classification_vgg.inference.model'
+        self.params = self.params_resnet
+        self.model = Model(False,self.params,self.signnames)
 
+    def model_predict(self, img_path):
+        print('forward')
+        img = load_image(img_path)
+        res=self.model.predict(img)
+        self.model.output()
+        return res 
+    
+    @runnable
+    def runnable(self, argvs):
+        print('runnable')
+        args = self.parser.parse_args(argvs)
+        return self.model_predict(args.input_img)
+
+    @serving
+    def serving(self, img_b64):
+        print('serving')
+        model.eval()
+        img_b = base64.b64decode(img_b64)
+        img = load_image(BytesIO(img_b))
+        result = ["%d -> %s\n"%(self.model(img),self.signname())]
+        self.model.output()
+        # 应该返回JSON格式数据
+        # 从numpy读出的数据格式是 numpy.int32
+        res = { 'res': np.array(result)}
+        return json.dumps(res)
+
+# 实例化应该全局
+
+my_model = ModelPredict()
+```
+### 安装模型
+```python
+!hub install work/my_model 
+```
+### 加载模型
+```python
+import paddlehub as hub
+my_model = hub.Module(name="my_model")
+img_path = './data/output/8.jpg'
+my_model.model_predict(img_path)
+```
+forward\
+infer results = 17 -> No entry\
+array(17, dtype=int32)
+###终端部署方法
+```python
+!hub serving start -m my_model
+```
+### 通过POST请求实现预测
+```python
+import requests
+import json
+import cv2
+import base64
+
+def cv2_to_base64(image):
+    data = cv2.imencode('.png', image)[1]
+    return base64.b64encode(data.tobytes()).decode('utf-8')
+# 发送HTTP请求
+data = {'img_b64': cv2_to_base64(cv2.imread("./data/data103558/output/8.jpg"))}
+headers = {"Content-type": "application/json"}
+url = "http://0.0.0.0:8866/predict/mnist_predict"
+r = requests.post(url=url, headers=headers, data=json.dumps(data))
+# 打印预测结果
+print(r)
+print(r.json())
+# print(r.json()["results"])
+```
+{'msg': '', 'results': '{"res": "17 -> No entry"}', 'status': '000'}
 ## 五、总结与升华
 
 写写你在做这个项目的过程中遇到的坑，以及你是如何去解决的。

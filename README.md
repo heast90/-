@@ -1,4 +1,4 @@
-# Classification of traffic signs for automatic driving
+# 关于自动驾驶的交通标志分类
 本项目采用GTSRB数据源,基于VGG与RESNet图像分类的深度学习算法,使用百度paddle平台的fluid实现图像分类算法,并完成训练与验证。
 
 ## 一、项目背景

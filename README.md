@@ -1,15 +1,15 @@
 # 关于自动驾驶的交通标志图像分类
 本项目采用GTSRB数据源,基于VGG与RESNet图像分类的深度学习算法,使用百度paddle平台的fluid实现图像分类算法,并完成训练与验证。
 
-# 一、项目背景
+## 一、项目背景
 
 智能驾驶作为汽车技术的发展形式之一，具有重要意义。汽车行驶的路况大部分属于城市道路，在其中根据交通标志进行驾驶行为的调整是一项最基础智能决策,所以考虑使用使用城市交通标志进行图形分类助理智能决策,显得十分具有意义。
 
-# 二、数据集简介
+## 二、数据集简介
 
 本项目使用的数据集来源于Benchmark官方GTSRB数据集
 
-## 1.数据加载
+### 1.数据加载
     
 
 ```python
@@ -27,7 +27,7 @@ unzip -n test_img.zip
 mkdir output
 ```
 
-## 2.数据读取及打包
+### 2.数据读取及打包
 ```python
 import numpy as np
 import pickle
@@ -100,7 +100,7 @@ if __name__=="__main__":
 训练集样本量: 39209，验证集样本量: 12630
 
 
-## 2.Data Feed格式转换
+### 2.Data Feed格式转换
 
 
 ```python
@@ -123,11 +123,11 @@ def testDataReader():
         yield img,int(label)
 ```
 
-# 三、模型选择
+## 三、模型选择
 
 本项目采样VGG与ResNet算法进行实现:
 
-## 1.VGG 16
+### 1.VGG 16
 
 <div align="center">
 	<img src="https://githubraw.cdn.bcebos.com/PaddlePaddle/book/develop/03.image_classification/image/vgg16.png" width="70%">
@@ -163,7 +163,7 @@ def vgg_bn_drop(input):
     return predict
 ```
 
-## 2.ResNet
+### 2.ResNet
 <div align="center">
 	<img src="https://githubraw.cdn.bcebos.com/PaddlePaddle/book/develop/03.image_classification/image/resnet.png" width="70%">
 </div>
@@ -220,8 +220,8 @@ def resnet(ipt, depth=32):
 ```
 
 
-# 四、训练搭建
-## 1.库加载及训练参数
+## 四、训练搭建
+### 1.库加载及训练参数
 
 ```python
 import paddle.fluid as fluid
@@ -233,7 +233,7 @@ learning_rate=0.01
 EPOCH_NUM = 50
 ```
 
-## 2.训练前配置
+### 2.训练前配置
 ```python
 def inference_program():
     # The image is 32 * 32 with RGB representation.
@@ -255,8 +255,8 @@ def train_program():
     accuracy = fluid.layers.accuracy(input=predict, label=label)
     return [avg_cost, accuracy]
 ```
-## 3.训练程序
-### 1）Data Feeders 配置
+### 3.训练程序
+#### 1）Data Feeders 配置
 ```python
 BATCH_SIZE = 150
 train_reader = paddle.batch(
@@ -266,7 +266,7 @@ train_reader = paddle.batch(
 test_reader = paddle.batch(testDataReader, 
                            batch_size=BATCH_SIZE)
 ```
-### 2）Train程序实现
+#### 2）Train程序实现
 ```python
 use_cuda = False 
 place = fluid.CUDAPlace(0) if use_cuda else fluid.CPUPlace()
@@ -297,7 +297,7 @@ def train_test(program, reader):
         count += 1
     return [x / count for x in accumulated]
 ```
-### 3）训练主循环
+#### 3）训练主循环
 ```python
 params_dirname = "image_classification_resnet.inference.model"
 # params_dirname = "image_classification_vgg.inference.model"
@@ -334,7 +334,7 @@ def train_loop():
             fluid.io.save_inference_model(params_dirname, ["pixel"],
                                           [predict], exe)
 ```
-## 4.训练
+### 4.训练
 ```python
 train_loop()
 ```
@@ -350,7 +350,7 @@ Pass:1, Batch:38, Cost:0.53123,Acc:0.86667
 Pass:1, Batch:88, Cost:0.43890,Acc:0.86667
 Pass:1, Batch:138, Cost:0.37135,Acc:0.90667
 ```
-## 5.训练结果可视化
+### 5.训练结果可视化
 ```python
 import matplotlib.pyplot as plt 
 title=' vgg error rate'
@@ -372,8 +372,8 @@ plt.show()
 画出训练测试误差图
 ![image.png](attachment:image.png)
 ![image-2.png](attachment:image-2.png)
-# 五、模型预测
-## 1.加载测试数据
+## 五、模型预测
+### 1.加载测试数据
 ```python
 from PIL import Image
 import os
@@ -425,7 +425,7 @@ def load_label():
  test_img=np.array(load_test_data())
  signnames=load_label()
 ```
-## 2.预测
+### 2.预测
 ```python
 place = fluid.CUDAPlace(0) if use_cuda else fluid.CPUPlace()
 exe = fluid.Executor(place)
@@ -447,7 +447,7 @@ infer results[5] = 18 -> General caution
 infer results[6] = 35 -> Ahead only 
 infer results[7] = 17 -> No entry 
 ```
-# 四、效果展示
+## 四、效果展示
 ```python
 
 plt.figure(num='test_data',figsize=(21,8))
@@ -467,12 +467,12 @@ plt.show()
 ![image-3.png](attachment:image-3.png)
 如上图训练的模型很好的实现了对交通标志的分类。
 
-# 五、总结与升华
+## 五、总结与升华
 
 写写你在做这个项目的过程中遇到的坑，以及你是如何去解决的。
 
 最后一句话总结你的项目
 
-# 个人简介
+## 个人简介
 
 此处可附上你的AI Studio个人链接，增加曝光率。

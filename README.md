@@ -465,8 +465,8 @@ plt.show()
 ```
 ![image](https://user-images.githubusercontent.com/69491295/128953009-4aeeca31-2bfa-4231-bdb2-a79936b0c346.png)
 如上图训练的模型很好的实现了对交通标志的分类。
-## 模型部署
-### 训练模型转Hub模型
+## 五、模型部署
+### 1.训练模型转Hub模型
 文件image_classification_vgg.inference.model.zip和image_classification_resnet.inference.model.zip是训练好的模型可以直接布置
 ```python
 %%bash
@@ -578,11 +578,11 @@ class ModelPredict:
 
 my_model = ModelPredict()
 ```
-### 安装模型
+### 2.安装模型
 ```python
 !hub install work/my_model 
 ```
-### 加载模型
+### 3.加载模型
 ```python
 import paddlehub as hub
 my_model = hub.Module(name="my_model")
@@ -596,7 +596,7 @@ array(17, dtype=int32)
 ```python
 !hub serving start -m my_model
 ```
-### 通过POST请求实现预测
+### 4.通过POST请求实现预测
 ```python
 import requests
 import json
@@ -617,7 +617,7 @@ print(r.json())
 # print(r.json()["results"])
 ```
 {'msg': '', 'results': '{"res": "17 -> No entry"}', 'status': '000'}
-## 五、总结与升华
+## 六、总结与升华
 
 写写你在做这个项目的过程中遇到的坑，以及你是如何去解决的。
 
